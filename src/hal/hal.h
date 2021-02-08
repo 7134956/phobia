@@ -1,6 +1,9 @@
 #ifndef _H_HAL_
 #define _H_HAL_
 
+#define STM32F405xx
+#include "cmsis/stm32f4xx.h"
+
 #include "adc.h"
 #include "can.h"
 #include "flash.h"

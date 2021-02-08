@@ -1,4 +1,3 @@
-#include "cmsis/stm32f4xx.h"
 #include "hal.h"
 
 #define GPIO_TIM1_CH1N			XGPIO_DEF4('B', 13, 0, 1)

@@ -1,4 +1,3 @@
-#include "cmsis/stm32f4xx.h"
 #include "hal.h"
 
 void WD_startup()

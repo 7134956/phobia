@@ -1,4 +1,3 @@
-#include "cmsis/stm32f4xx.h"
 #include "hal/hal.h"
 
 extern long ld_stack;

@@ -1,6 +1,5 @@
 #include <stddef.h>
 
-#include "cmsis/stm32f4xx.h"
 #include "hal.h"
 #include "libc.h"
 
@@ -344,6 +343,6 @@ void log_putc(int c)
 void DBGMCU_mode_stop()
 {
 	DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_IWDG_STOP;
-	DBGMCU->APB2FZ |= DBGMCU_APB1_FZ_DBG_TIM1_STOP;
+	DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
 }
 

@@ -1,7 +1,6 @@
 #include <stddef.h>
 
 #include "freertos/FreeRTOS.h"
-#include "cmsis/stm32f4xx.h"
 #include "hal.h"
 #include "libc.h"
 

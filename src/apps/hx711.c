@@ -15,7 +15,7 @@ void ap_HX711(void *pData)
 	const int		gpio_DOUT = GPIO_SPI_MISO;
 	const int		gpio_PD_SCK = GPIO_SPI_SCK;
 
-	int			DOUT, ADC, N;
+	int			DOUT, _ADC, N;
 
 	GPIO_set_mode_INPUT(gpio_DOUT);
 	GPIO_set_mode_OUTPUT(gpio_PD_SCK);
@@ -52,12 +52,12 @@ void ap_HX711(void *pData)
 
 				if (N == 0) {
 
-					ADC = (DOUT != 0) ? -1 : 0;
+					_ADC = (DOUT != 0) ? -1 : 0;
 				}
 				else if (N < 24) {
 
-					ADC <<= 1;
-					ADC |= (DOUT != 0) ? 1 : 0;
+					_ADC <<= 1;
+					_ADC |= (DOUT != 0) ? 1 : 0;
 				}
 
 				GPIO_set_LOW(gpio_PD_SCK);
@@ -66,7 +66,7 @@ void ap_HX711(void *pData)
 
 			/* Convert the ADC code into KG.
 			 * */
-			ap.hx711_kg = (float) ADC * ap.hx711_scale[1] + ap.hx711_scale[0];
+			ap.hx711_kg = (float) _ADC * ap.hx711_scale[1] + ap.hx711_scale[0];
 		}
 	}
 	while (1);
