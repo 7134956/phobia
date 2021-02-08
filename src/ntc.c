@@ -13,3 +13,7 @@ float ntc_temperature(ntc_t *ntc, float u)
 	return temp;
 }
 
+float ats_temperature(ats_t *ats, float u)
+{
+	return (ats->T0 - u) * ats->range;
+}

@@ -93,7 +93,11 @@ void task_TERM(void *pData)
 		 * */
 		vTaskDelayUntil(&xWake, (TickType_t) 100);
 
+#ifdef _HW_PESC1
+		ap.temp_PCB = ats_temperature(&ap.ats_PCB, ADC_get_VALUE(GPIO_ADC_PCB_NTC));
+#else
 		ap.temp_PCB = ntc_temperature(&ap.ntc_PCB, ADC_get_VALUE(GPIO_ADC_PCB_NTC));
+#endif
 		ap.temp_EXT = ntc_temperature(&ap.ntc_EXT, ADC_get_VALUE(GPIO_ADC_EXT_NTC));
 		ap.temp_INT = ADC_get_VALUE(GPIO_ADC_INTERNAL_TEMP);
 
@@ -342,9 +346,13 @@ app_flash_load()
 	float		vm_R1 = 470000.f;
 	float		vm_R2 = 27000.f;
 	float		vm_R3 = 470000.f;
-	float		vm_D = (vm_R1 * vm_R2 + vm_R2 * vm_R3 + vm_R1 * vm_R3);
 	float		in_R1 = 10000.f;
 	float		in_R2 = 10000.f;
+#ifdef _HW_PESC1
+	vm_R1 = 470000.f + 330000.f;
+	in_R1 = 5000.f;
+#endif
+	float		vm_D = (vm_R1 * vm_R2 + vm_R2 * vm_R3 + vm_R1 * vm_R3);
 
 	hal.USART_baud_rate = 57600;
 	hal.PWM_frequency = 30000.f;
@@ -356,6 +364,15 @@ app_flash_load()
 	hal.ADC_terminal_ratio = vm_R2 * vm_R3 / vm_D;
 	hal.ADC_terminal_bias = vm_R1 * vm_R2 * hal.ADC_reference_voltage / vm_D;
 	hal.ADC_analog_ratio = in_R2 / (in_R1 + in_R2);
+
+#ifdef _HW_PESC1
+
+	hal.PWM_frequency = 20000.f;
+	hal.PWM_deadtime = 75.f;
+	hal.ADC_shunt_resistance = 8.8E-3f;
+	hal.ADC_amplifier_gain = 1.f;
+
+#endif /* _HW_PESC1 */
 
 #ifdef _HW_REV2
 
@@ -461,10 +478,15 @@ app_flash_load()
 	ap.timeout_current_tol = 2.f;
 	ap.timeout_IDLE_s = 5.f;
 
+#ifdef _HW_PESC1
+	ap.ats_PCB.range = 3.3f / 0.0136f;
+	ap.ats_PCB.T0 = 2.633f / 3.3f;
+#else
 	ap.ntc_PCB.r_balance = 10000.f;
 	ap.ntc_PCB.r_ntc_0 = 10000.f;
 	ap.ntc_PCB.ta_0 = 25.f;
 	ap.ntc_PCB.betta = 3435.f;
+#endif
 
 	ap.ntc_EXT.r_balance = 10000.f;
 	ap.ntc_EXT.r_ntc_0 = 10000.f;

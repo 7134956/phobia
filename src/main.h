@@ -53,6 +53,7 @@ typedef struct {
 
 	/* NTC constants.
 	 * */
+	ats_t			ats_PCB;
 	ntc_t			ntc_PCB;
 	ntc_t			ntc_EXT;
 

@@ -1108,10 +1108,14 @@ const reg_t		regfile[] = {
 	REG_DEF(ap.timeout_current_tol,,,	"A",	"%3f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.timeout_IDLE_s,,,		"s",	"%1f",	REG_CONFIG, NULL, NULL),
 
+	REG_DEF(ap.ats_PCB.T0,,,		"Val",	"%1f",	REG_CONFIG, NULL, NULL),
+	REG_DEF(ap.ats_PCB.range,,,		"Deg",	"%1f",	REG_CONFIG, NULL, NULL),
+
 	REG_DEF(ap.ntc_PCB.r_balance,,,		"Ohm",	"%1f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.ntc_PCB.r_ntc_0,,,		"Ohm",	"%1f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.ntc_PCB.ta_0,,,		"C",	"%1f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.ntc_PCB.betta,,,		"",	"%1f",	REG_CONFIG, NULL, NULL),
+
 	REG_DEF(ap.ntc_EXT.r_balance,,,		"Ohm",	"%1f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.ntc_EXT.r_ntc_0,,,		"Ohm",	"%1f",	REG_CONFIG, NULL, NULL),
 	REG_DEF(ap.ntc_EXT.ta_0,,,		"C",	"%1f",	REG_CONFIG, NULL, NULL),

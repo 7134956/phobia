@@ -35,7 +35,15 @@ typedef struct {
 }
 ntc_t;
 
+typedef struct {
+
+	float		range;
+	float		T0;
+}
+ats_t;
+
 float ntc_temperature(ntc_t *ntc, float u);
+float ats_temperature(ats_t *ats, float u);
 
 #endif /* _H_NTC_ */
 

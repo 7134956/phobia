@@ -1,7 +1,7 @@
 #ifndef _H_HAL_
 #define _H_HAL_
 
-#ifdef _HW_TODO
+#ifdef _HW_PESC1
 #define STM32F722xx
 #include "cmsis/stm32f7xx.h"
 #else

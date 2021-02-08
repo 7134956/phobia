@@ -65,6 +65,10 @@ void pm_default(pmc_t *pm)
 	pm->fault_accuracy_tol = 1E-1f;
 	pm->fault_current_halt = 156.f;
 	pm->fault_voltage_halt = 59.f;
+#ifdef _HW_PESC1
+	pm->fault_current_halt = 170.f;
+	pm->fault_voltage_halt = 95.f;
+#endif /* _HW_PESC1 */
 
 	pm->vsi_gain_LP_F = 5E-3f;
 
