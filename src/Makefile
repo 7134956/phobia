@@ -57,6 +57,10 @@ OBJS    = freertos/heap_4.o \
 	  hal/tim.o \
 	  hal/usart.o \
 	  hal/wd.o \
+	  libusb_stm32/cdc.o \
+	  libusb_stm32/src/usbd_core.o \
+	  libusb_stm32/src/usbd_stm32f429_otgfs.o \
+	  libusb_stm32/src/usbd_stm32f446_otgfs.o \
 	  phobia/libm.o \
 	  phobia/pm.o \
 	  phobia/pm_fsm.o \

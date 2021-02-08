@@ -31,6 +31,7 @@ void irq_CAN1_SCE();
 void irq_TIM1_UP_TIM10();
 void irq_TIM4();
 void irq_USART3();
+void irq_OTG_FS();
 
 __attribute__ (( section(".vectors"), used )) void * vectors[] = {
 
@@ -119,7 +120,7 @@ __attribute__ (( section(".vectors"), used )) void * vectors[] = {
 	irq_Default,
 	irq_Default,
 	irq_Default,
-	irq_Default,
+	irq_OTG_FS,
 	irq_Default,
 	irq_Default,
 	irq_Default,

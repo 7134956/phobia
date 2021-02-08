@@ -6,6 +6,7 @@
 
 #include "main.h"
 #include "ifcan.h"
+#include "libusb_stm32/cdc.h"
 #include "libc.h"
 #include "shell.h"
 
@@ -548,6 +549,8 @@ void task_INIT(void *pData)
 	io_USART.putc = &USART_putc;
 	io_CAN.getc = &IFCAN_getc;
 	io_CAN.putc = &IFCAN_putc;
+	io_USBCDC.getc = &USBCDC_getc;
+	io_USBCDC.putc = &USBCDC_putc;
 
 	/* Default to USART.
 	 * */
@@ -609,6 +612,7 @@ void task_INIT(void *pData)
 
 	USART_startup();
 	IFCAN_startup();
+	USBCDC_startup();
 
 	xTaskCreate(task_TERM, "TERM", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 	xTaskCreate(task_ERROR, "ERROR", configMINIMAL_STACK_SIZE, NULL, 1, NULL);

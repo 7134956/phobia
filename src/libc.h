@@ -5,6 +5,7 @@
 
 #define	IODEF_TO_USART()	if (iodef != &io_USART) { iodef = &io_USART; }
 #define	IODEF_TO_CAN()		if (iodef != &io_CAN) { iodef = &io_CAN; }
+#define	IODEF_TO_USBCDC()	if (iodef != &io_USBCDC) { iodef = &io_USBCDC; }
 
 #define URAND_MAX		65535
 
@@ -23,6 +24,7 @@ io_ops_t;
  * */
 extern io_ops_t		io_USART;
 extern io_ops_t		io_CAN;
+extern io_ops_t		io_USBCDC;
 
 /* Currently used.
  * */
