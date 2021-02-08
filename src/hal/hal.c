@@ -3,6 +3,11 @@
 #include "hal.h"
 #include "libc.h"
 
+#ifdef STM32F7
+#define SYS_MEM_ADDR			0x1FF00000UL //On AXIM interface
+#else
+#define SYS_MEM_ADDR			0x1FFF0000UL
+#endif
 #define CLOCK_CRYSTAL_HZ		12000000UL
 #define CLOCK_CPU_TARGET_HZ		168000000UL
 
@@ -90,6 +95,12 @@ clock_startup()
 	u32_t		CLOCK, PLLQ, PLLP, PLLN, PLLM;
 	int		HSE, N = 0;
 
+#ifdef STM32F7
+	SCB_EnableICache();	// Enable I-Cache
+	SCB_EnableDCache();	// Enable D-Cache
+	RCC->DCKCFGR2 = 0;	// Need if return from system bootloader
+#endif
+
 	/* Enable HSI.
 	 * */
 	RCC->CR |= RCC_CR_HSION;
@@ -120,7 +131,11 @@ clock_startup()
 
 	/* Regulator voltage scale 1 mode.
 	 * */
+#ifdef STM32F7
+	PWR->CR1 = PWR_CR1_VOS_1;
+#else
 	PWR->CR |= PWR_CR_VOS;
+#endif
 
 	/* Set AHB/APB1/APB2 prescalers.
 	 * */
@@ -175,7 +190,11 @@ clock_startup()
 
 	/* Configure Flash.
 	 * */
-	FLASH->ACR = FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_5WS;
+	FLASH->ACR =
+#ifndef STM32F7
+	FLASH_ACR_DCEN | FLASH_ACR_ICEN |
+#endif
+	FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_5WS;
 
 	/* Select PLL.
 	 * */
@@ -194,7 +213,11 @@ periph_startup()
 {
 	/* Enable Programmable voltage detector.
 	 * */
+#ifdef STM32F7
+	PWR->CR1 |= PWR_CR1_PLS_LEV7 | PWR_CR1_PVDE;
+#else
 	PWR->CR |= PWR_CR_PLS_LEV7 | PWR_CR_PVDE;
+#endif
 
 	/* Enable LSI.
 	 * */
@@ -207,7 +230,7 @@ periph_startup()
 
 	/* Check for reset reason.
 	 * */
-	if (RCC->CSR & RCC_CSR_WDGRSTF) {
+	if (RCC->CSR & RCC_CSR_WWDGRSTF) {
 
 		log_TRACE("RESET: WD" EOL);
 	}
@@ -228,11 +251,11 @@ void hal_bootload()
 
 		/* Load MSP.
 		 * */
-		__set_MSP(* (u32_t *) 0x1FFF0000UL);
+		__set_MSP(* (u32_t *) SYS_MEM_ADDR);
 
 		/* Jump to the bootloader.
 		 * */
-		((void (*) (void)) (* (u32_t *) 0x1FFF0004UL)) ();
+		((void (*) (void)) (* (u32_t *) (SYS_MEM_ADDR + 4))) ();
 	}
 }
 

@@ -1,8 +1,13 @@
 #ifndef _H_HAL_
 #define _H_HAL_
 
+#ifdef _HW_TODO
+#define STM32F722xx
+#include "cmsis/stm32f7xx.h"
+#else
 #define STM32F405xx
 #include "cmsis/stm32f4xx.h"
+#endif
 
 #include "adc.h"
 #include "can.h"

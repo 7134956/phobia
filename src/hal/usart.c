@@ -30,7 +30,28 @@ void irq_USART3()
 	BaseType_t		xWoken = pdFALSE;
 	u32_t 			SR;
 	char			xC;
+#ifdef STM32F7
+	SR = USART3->ISR;
 
+	if (SR & USART_ISR_RXNE) {
+
+		xC = USART3->RDR;
+		xQueueSendToBackFromISR(hal_USART.queue_RX, &xC, &xWoken);
+
+		IODEF_TO_USART();
+	}
+
+	if (SR & USART_ISR_TXE) {
+
+		if (xQueueReceiveFromISR(hal_USART.queue_TX, &xC, &xWoken) == pdTRUE) {
+
+			USART3->TDR = xC;
+		}
+		else {
+			USART3->CR1 &= ~USART_CR1_TXEIE;
+		}
+	}
+#else
 	SR = USART3->SR;
 
 	if (SR & USART_SR_RXNE) {
@@ -51,7 +72,7 @@ void irq_USART3()
 			USART3->CR1 &= ~USART_CR1_TXEIE;
 		}
 	}
-
+#endif
 	portYIELD_FROM_ISR(xWoken);
 }
 
@@ -74,6 +95,14 @@ void USART_startup()
 	/* Configure USART.
 	 * */
 	USART3->BRR = CLOCK_APB1_HZ / hal.USART_baud_rate;
+	USART3->CR1 = USART_CR1_UE |
+#ifdef STM32F7
+	USART_CR1_M0 |
+#else
+	USART_CR1_M |
+#endif
+	USART_CR1_PCE | USART_CR1_RXNEIE | USART_CR1_TE | USART_CR1_RE;
+
 	USART3->CR1 = USART_CR1_UE | USART_CR1_M | USART_CR1_PCE
 		| USART_CR1_RXNEIE | USART_CR1_TE | USART_CR1_RE;
 	USART3->CR2 = 0;

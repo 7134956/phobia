@@ -32,7 +32,8 @@ CFLAGS  += -I.
 CFLAGS  += -D_HW_REV5A
 
 LDFLAGS	= -nostdlib
-LDFLAGS	+= -Wl,-T,hal/link.ld
+LDFLAGS	+= -Wl,-T,hal/link_f4.ld
+#LDFLAGS	+= -Wl,-T,hal/link_f7.ld
 
 TTY	= /dev/rfcomm0
 #TTY	= /dev/ttyUSB0

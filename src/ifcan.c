@@ -982,7 +982,11 @@ void IFCAN_startup()
 {
 	/* Produce UNIQUE ID.
 	 * */
+#ifdef STM32F7
+	local.UID = crc32b((void *) 0x1FF07A10, 12);
+#else
 	local.UID = crc32b((void *) 0x1FFF7A10, 12);
+#endif
 
 	/* Allocate queues.
 	 * */

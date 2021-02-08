@@ -3,14 +3,26 @@
 #include "hal.h"
 #include "libc.h"
 
-const unsigned long FLASH_map[] = {
+#ifdef STM32F7
+#define FLASH_FIRST_SECTOR	5
+#else
+#define FLASH_FIRST_SECTOR	7
+#endif
 
+const unsigned long FLASH_map[] = {
+#ifdef STM32F7
+	0x08020000UL,
+	0x08040000UL,
+	0x08060000UL
+#else
 	0x08060000UL,
 	0x08080000UL,
 	0x080A0000UL,
 	0x080C0000UL,
 	0x080E0000UL,
 	0x08100000UL
+#endif
+
 };
 
 static void
@@ -48,7 +60,9 @@ FLASH_erase_on_IWDG(int N)
 
 	FLASH->CR = FLASH_CR_PSIZE_1 | (N << 3)
 		| FLASH_CR_SER | FLASH_CR_STRT;
-
+#ifdef STM32F7
+	__DSB();
+#endif
 	while ((FLASH->SR & FLASH_SR_BSY) == FLASH_SR_BSY) {
 
 		/* Kick IWDG during a long wait.
@@ -75,7 +89,7 @@ FLASH_selfupdate_on_IWDG()
 	 * */
 	__disable_irq();
 
-	for (N = 0; N < 7; ++N) {
+	for (N = 0; N < FLASH_FIRST_SECTOR; ++N) {
 
 		FLASH->CR = FLASH_CR_PSIZE_1 | (N << 3)
 			| FLASH_CR_SER | FLASH_CR_STRT;
@@ -133,7 +147,7 @@ void *FLASH_erase(void *flash)
 				&& (u32_t) flash < FLASH_map[N + 1]) {
 
 			flash = (void *) FLASH_map[N];
-			sector_N = N + 7;
+			sector_N = N + FLASH_FIRST_SECTOR;
 
 			break;
 		}
@@ -150,12 +164,14 @@ void *FLASH_erase(void *flash)
 
 		FLASH_lock();
 
+#ifndef STM32F7
 		/* Flush DATA caches.
 		 * */
 		FLASH->ACR &= ~FLASH_ACR_DCEN;
 		FLASH->ACR |= FLASH_ACR_DCRST;
 		FLASH->ACR &= ~FLASH_ACR_DCRST;
 		FLASH->ACR |= FLASH_ACR_DCEN;
+#endif
 	}
 
 	return flash;
@@ -198,7 +214,6 @@ void *FLASH_prog(void *flash, const void *s, int n)
 
 		FLASH_lock();
 	}
-
 	return flash;
 }
 
