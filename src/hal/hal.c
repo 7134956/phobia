@@ -4,26 +4,13 @@
 #include "libc.h"
 
 #ifdef STM32F7
+#define CLOCK_CPU_TARGET_HZ		216000000UL
 #define SYS_MEM_ADDR			0x1FF00000UL //On AXIM interface
+//#define SYS_MEM_ADDR			0x00100000UL //On ICTM interface
 #else
+#define CLOCK_CPU_TARGET_HZ		168000000UL
 #define SYS_MEM_ADDR			0x1FFF0000UL
 #endif
-#define CLOCK_CRYSTAL_HZ		12000000UL
-#define CLOCK_CPU_TARGET_HZ		168000000UL
-
-#ifdef _HW_REV2
-
-#undef CLOCK_CRYSTAL_HZ
-#define CLOCK_CRYSTAL_HZ		8000000UL
-
-#endif /* _HW_REV2 */
-
-#ifdef _HW_KLEN
-
-#undef CLOCK_CRYSTAL_HZ
-#define CLOCK_CRYSTAL_HZ		25000000UL
-
-#endif /* _HW_KLEN */
 
 unsigned long			clock_cpu_hz;
 
@@ -89,6 +76,52 @@ base_startup()
 	NVIC_SetPriorityGrouping(0UL);
 }
 
+static uint32_t
+get_HSE_clock(void) {
+	uint32_t clock;			//Частота калибатора в мегагерцах
+	uint16_t cap_value;		//Значение захвата
+
+	RCC->CFGR |= 26 << RCC_CFGR_RTCPRE_Pos; //HSE_RTC at 1 MHz max.
+
+	RCC->APB2ENR |= RCC_APB2ENR_TIM11EN; //Включаем тактирование таймера замера частоты
+
+#ifdef STM32F7
+	TIM11->OR = TIM11_OR_TI1_RMP_1;
+#else
+	TIM11->OR = TIM_OR_TI1_RMP_1;	//HSE_RTC clock как сигнал захвата; Делитель: 26 * 8 = 208
+#endif
+	TIM11->CCMR1 =					//Захватить назначение IC1 -> TI1, прескалер / 8
+		TIM_CCMR1_CC1S_0 |
+		TIM_CCMR1_IC1PSC_1 |
+		TIM_CCMR1_IC1PSC_0;
+	TIM11->CCER = TIM_CCER_CC1E;	//Включение входа захвата
+	TIM11->CR1 = TIM_CR1_CEN;		//Запуск таймера
+
+	while(!(TIM11->SR & TIM_SR_UIF));	//Один раз дождемся переполнения
+	TIM11->SR = 0;						//Очищаем флаги UIF и CC1F
+
+	while(!(TIM11->SR & TIM_SR_CC1IF) && !(TIM11->SR & TIM_SR_UIF)); //Ожидание захвата
+	if(TIM11->SR & TIM_SR_UIF) {
+		clock = 0;			//Нет генерации
+	} else {
+		cap_value = TIM11->CCR1;//Читаем значение захвата
+		TIM11->SR = 0;			//Очищаем флаги UIF и CC1F
+		while(!(TIM11->SR & TIM_SR_CC1IF));	//Ожидание захвата
+		cap_value = TIM11->CCR1 - cap_value;//Считаем разницу
+		clock = (208 * 16 + 80) / cap_value;//Округлить с 2%. Допуск
+	}
+
+	//Сбросить настройки и выключить Таймер 11
+	TIM11->CR1 = 0;
+	TIM11->CCMR1 = 0;
+	TIM11->CCER = 0;
+	TIM11->OR = 0;
+	TIM11->CNT = 0;
+	RCC->APB2ENR &= ~RCC_APB2ENR_TIM11EN;
+
+	return clock * 1000000;
+}
+
 static void
 clock_startup()
 {
@@ -143,7 +176,7 @@ clock_startup()
 
 	if (HSE != 0) {
 
-		CLOCK = CLOCK_CRYSTAL_HZ;
+		CLOCK = get_HSE_clock();
 
 		/* From HSE.
 		 * */
