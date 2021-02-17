@@ -86,6 +86,7 @@ void USART_startup()
 	 * */
 	GPIO_set_mode_FUNCTION(GPIO_USART3_TX);
 	GPIO_set_mode_FUNCTION(GPIO_USART3_RX);
+	GPIO_set_mode_PULL_UP(GPIO_USART3_RX);
 
 	/* Alloc queues.
 	 * */
