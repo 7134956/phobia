@@ -294,6 +294,7 @@ void hal_bootload()
 
 void hal_startup()
 {
+	DBGMCU_mode_stop();
 	base_startup();
 	clock_startup();
 	periph_startup();
@@ -400,5 +401,6 @@ void DBGMCU_mode_stop()
 {
 	DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_IWDG_STOP;
 	DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
+	DBGMCU->CR |= DBGMCU_CR_DBG_STOP;
 }
 
